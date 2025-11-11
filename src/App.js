@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-
+import Header from "./components/Header";
 import PlantList from "./components/PlantList";
 import NewPlantForm from "./components/NewPlantForm";
-import Search from "./components/Search";
 
 function App() {
   const [plants, setPlants] = useState([]);
@@ -14,19 +13,44 @@ function App() {
       .then(setPlants);
   }, []);
 
+  function handleAddPlant(newPlant) {
+    fetch("http://localhost:6001/plants", {
+      method: "POST",
+      headers: {
+        "Content-Type": "Application/JSON",
+      },
+      body: JSON.stringify(newPlant),
+    })
+      .then((r) => r.json())
+      .then((addedPlant) => setPlants([...plants, addedPlant]));
+  }
+
   const filteredPlants = plants.filter((plant) =>
     plant.name.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="app">
-      <h1>Plantsy 🌿</h1>
-      <Search search={search} onSearchChange={setSearch} />
-      <NewPlantForm setPlants={setPlants} />
-      <PlantList plants={filteredPlants} setPlants={setPlants} />
+      <Header />
+
+      {/* ✅ Search Input */}
+      <input
+        type="text"
+        placeholder="Type a name to search..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {/* ✅ Add Plant Form */}
+      <NewPlantForm onAddPlant={handleAddPlant} />
+
+      {/* ✅ Filtered List */}
+      <PlantList plants={filteredPlants} />
     </div>
   );
 }
 
 export default App;
+
+
 
